@@ -312,8 +312,6 @@ ORDER BY r_q.id ASC`,
 
       const rejectObject = rejectStats[0];
 
-      console.log(rejectObject);
-
       const doesnt_match_my_skills_reject_reason =
         rejectObject?.Doesnt_match_my_skills || 0;
       const salary_is_too_low_reject_reason =
@@ -730,7 +728,6 @@ WHERE u.uid = %L AND p_c IS NOT NULL;`,
     const resumeData: any = {};
     let counter = 1;
     resume_list.forEach((resume) => (resumeData[`r_${counter++}`] = resume));
-    console.log(resumeData);
     const invitationsCount = await countUserInvites(uid, smtpClient);
     const lettersCount = await countUserLetters(uid, smtpClient);
     const talentSuccessApplicationsCount = await countTalentSuccessApplications(
