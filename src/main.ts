@@ -278,9 +278,6 @@ ORDER BY r_q.id ASC`,
               Other: {
                 $sum: { $cond: [{ $eq: ['$rejectReason', 'Other'] }, 1, 0] },
               },
-              Null: {
-                $sum: { $cond: [{ $eq: ['$rejectReason', null] }, 1, 0] },
-              },
             },
           },
         ])
@@ -313,22 +310,25 @@ ORDER BY r_q.id ASC`,
       const successApplies = rStats.find(({ _id }) => _id === true)?.count || 0;
       const failedApplies = rStats.find(({ _id }) => _id === false)?.count || 0;
 
-      const rejectObject: any = rejectStats[0];
+      const rejectObject = rejectStats[0];
+
+      console.log(rejectObject);
 
       const doesnt_match_my_skills_reject_reason =
-        rejectObject['Doesnt_match_my_skills'];
-      const salary_is_too_low_reject_reason = rejectObject['Salary_is_too_low'];
+        rejectObject?.Doesnt_match_my_skills || 0;
+      const salary_is_too_low_reject_reason =
+        rejectObject?.Salary_is_too_low || 0;
       const location_isnt_a_good_fit_reject_reason =
-        rejectObject['Location_isnt_a_good_fit'];
+        rejectObject?.Location_isnt_a_good_fit || 0;
       const the_role_isnt_appealing_to_me_reject_reason =
-        rejectObject['The_role_isnt_appealing_to_me'];
+        rejectObject?.The_role_isnt_appealing_to_me || 0;
       const already_applied_for_this_job_reject_reason =
-        rejectObject['Already_applied_for_this_job'];
+        rejectObject?.Already_applied_for_this_job || 0;
       const not_my_field_of_work_reject_reason =
-        rejectObject['Not_my_field_of_work'];
+        rejectObject?.Not_my_field_of_work || 0;
       const i_want_to_apply_for_this_job_myself_reject_reason =
-        rejectObject['I_want_to_apply_for_this_job_myself'];
-      const other_reject_reason = rejectObject['Other'];
+        rejectObject?.I_want_to_apply_for_this_job_myself || 0;
+      const other_reject_reason = rejectObject?.Other || 0;
 
       const firstDayAndWeekApplications = await vacanciesDbClient
         .db('vacancy_storage')
@@ -730,7 +730,7 @@ WHERE u.uid = %L AND p_c IS NOT NULL;`,
     const resumeData: any = {};
     let counter = 1;
     resume_list.forEach((resume) => (resumeData[`r_${counter++}`] = resume));
-
+    console.log(resumeData);
     const invitationsCount = await countUserInvites(uid, smtpClient);
     const lettersCount = await countUserLetters(uid, smtpClient);
     const talentSuccessApplicationsCount = await countTalentSuccessApplications(
@@ -863,7 +863,7 @@ async function run() {
 
     console.log(`${user} done in ${Date.now() - now}ms, keys: ${keys.length}`);
 
-    if (keys.length !== 142) {
+    if (keys.length !== 166) {
       console.log(keys.join('\n'));
     }
   }
