@@ -181,6 +181,110 @@ ORDER BY r_q.id ASC`,
             : null)
       );
 
+      const rejectStats = await vacanciesDbClient
+        .db('vacancy_storage')
+        .collection('resumeVacancy')
+        .aggregate([
+          {
+            $match: {
+              resumeId: resume.id,
+              vacancyId: {
+                $ne: new ObjectId('000000000000000000000000'),
+              },
+              respondedAt: {
+                $ne: null,
+              },
+            },
+          },
+          {
+            $project: {
+              _id: 1,
+              rejectReason: 1,
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              Doesnt_match_my_skills: {
+                $sum: {
+                  $cond: [
+                    { $eq: ['$rejectReason', "Doesn't match my skills"] },
+                    1,
+                    0,
+                  ],
+                },
+              },
+              Salary_is_too_low: {
+                $sum: {
+                  $cond: [
+                    { $eq: ['$rejectReason', 'Salary is too low'] },
+                    1,
+                    0,
+                  ],
+                },
+              },
+              Location_isnt_a_good_fit: {
+                $sum: {
+                  $cond: [
+                    { $eq: ['$rejectReason', "Location isn't a good fit"] },
+                    1,
+                    0,
+                  ],
+                },
+              },
+              The_role_isnt_appealing_to_me: {
+                $sum: {
+                  $cond: [
+                    {
+                      $eq: ['$rejectReason', "The role isn't appealing to me"],
+                    },
+                    1,
+                    0,
+                  ],
+                },
+              },
+              Already_applied_for_this_job: {
+                $sum: {
+                  $cond: [
+                    { $eq: ['$rejectReason', 'Already applied for this job'] },
+                    1,
+                    0,
+                  ],
+                },
+              },
+              Not_my_field_of_work: {
+                $sum: {
+                  $cond: [
+                    { $eq: ['$rejectReason', 'Not my field of work'] },
+                    1,
+                    0,
+                  ],
+                },
+              },
+              I_want_to_apply_for_this_job_myself: {
+                $sum: {
+                  $cond: [
+                    {
+                      $eq: [
+                        '$rejectReason',
+                        'I want to apply for this job myself',
+                      ],
+                    },
+                    1,
+                    0,
+                  ],
+                },
+              },
+              Other: {
+                $sum: { $cond: [{ $eq: ['$rejectReason', 'Other'] }, 1, 0] },
+              },
+              Null: {
+                $sum: { $cond: [{ $eq: ['$rejectReason', null] }, 1, 0] },
+              },
+            },
+          },
+        ])
+        .toArray();
       const rStats = await vacanciesDbClient
         .db('vacancy_storage')
         .collection('resumeVacancy')
@@ -206,9 +310,25 @@ ORDER BY r_q.id ASC`,
           },
         ])
         .toArray();
-
       const successApplies = rStats.find(({ _id }) => _id === true)?.count || 0;
       const failedApplies = rStats.find(({ _id }) => _id === false)?.count || 0;
+
+      const rejectObject: any = rejectStats[0];
+
+      const doesnt_match_my_skills_reject_reason =
+        rejectObject['Doesnt_match_my_skills'];
+      const salary_is_too_low_reject_reason = rejectObject['Salary_is_too_low'];
+      const location_isnt_a_good_fit_reject_reason =
+        rejectObject['Location_isnt_a_good_fit'];
+      const the_role_isnt_appealing_to_me_reject_reason =
+        rejectObject['The_role_isnt_appealing_to_me'];
+      const already_applied_for_this_job_reject_reason =
+        rejectObject['Already_applied_for_this_job'];
+      const not_my_field_of_work_reject_reason =
+        rejectObject['Not_my_field_of_work'];
+      const i_want_to_apply_for_this_job_myself_reject_reason =
+        rejectObject['I_want_to_apply_for_this_job_myself'];
+      const other_reject_reason = rejectObject['Other'];
 
       const firstDayAndWeekApplications = await vacanciesDbClient
         .db('vacancy_storage')
@@ -351,9 +471,16 @@ ORDER BY r_q.id ASC`,
         question,
         successApplies,
         failedApplies,
+        doesnt_match_my_skills_reject_reason,
+        salary_is_too_low_reject_reason,
+        location_isnt_a_good_fit_reject_reason,
+        the_role_isnt_appealing_to_me_reject_reason,
+        already_applied_for_this_job_reject_reason,
+        not_my_field_of_work_reject_reason,
+        i_want_to_apply_for_this_job_myself_reject_reason,
+        other_reject_reason,
       });
     }
-
     const mainUserData = (
       await apiClient.query(
         format(
@@ -736,7 +863,7 @@ async function run() {
 
     console.log(`${user} done in ${Date.now() - now}ms, keys: ${keys.length}`);
 
-    if (keys.length !== 140) {
+    if (keys.length !== 142) {
       console.log(keys.join('\n'));
     }
   }
