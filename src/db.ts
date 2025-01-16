@@ -1,6 +1,8 @@
-import { Client } from 'pg';
-import { settings } from './settings';
+import pkg from 'pg';
+import { settings } from './settings.js';
 import { MongoClient } from 'mongodb';
+
+const { Client } = pkg;
 
 export async function getDbClients() {
   const apiDbClient = new Client({

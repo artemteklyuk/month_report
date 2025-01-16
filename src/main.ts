@@ -1,10 +1,10 @@
 import { Client } from 'pg';
 import format from 'pg-format';
-import { getDbClients } from './db';
+import { getDbClients } from './db.js';
 import { stringify } from 'csv/sync';
 import { writeFile } from 'fs/promises';
 import { resolve } from 'path';
-import { flatten } from 'flat';
+import * as flat from 'flat';
 import { writeFileSync } from 'fs';
 import { MongoClient, ObjectId } from 'mongodb';
 
@@ -616,7 +616,7 @@ WHERE u.uid = %L AND p_c IS NOT NULL;`,
       talentSuccessApplicationsCount,
       isActiveSubscriber,
       // @ts-ignore
-      ...flatten({ question: userQuestions }),
+      ...flat.flatten({ question: userQuestions }),
       nps_1: nps_1 ? nps_1.data.answers.join(', ') : null,
       nps_2: nps_2 ? nps_2.data.answers.join(', ') : null,
       coverletter_generation,
@@ -624,7 +624,7 @@ WHERE u.uid = %L AND p_c IS NOT NULL;`,
       resume_downloaded_after_purchase,
       resume_downloaded_before_purchase,
       // @ts-ignore
-      ...flatten(
+      ...flat.flatten(
         userMetrics || {
           Gclid: null,
           yid: null,
@@ -636,9 +636,9 @@ WHERE u.uid = %L AND p_c IS NOT NULL;`,
         }
       ),
       // @ts-ignore
-      ...flatten({ subscription: subscription }),
+      ...flat.flatten({ subscription: subscription }),
       // @ts-ignore
-      ...flatten(resumeData),
+      ...flat.flatten(resumeData),
       invitations_count: Number(invitationsCount) || 0,
       lettersCount: Number(lettersCount) || 0,
     };
