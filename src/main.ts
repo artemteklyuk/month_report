@@ -858,7 +858,11 @@ async function run() {
 
     const keys = Object.keys(data);
 
-    console.log(`${user} done in ${Date.now() - now}ms, keys: ${keys.length}`);
+    console.log(
+      `${user} done in ${Date.now() - now}ms, keys: ${keys.length}, users: ${
+        users.length
+      }, name: ${Object.values(data)[2]}, date: ${new Date().toLocaleString()}`
+    );
 
     if (keys.length !== 166) {
       console.log(keys.join('\n'));
@@ -868,7 +872,7 @@ async function run() {
   await writeFileSync(
     resolve('users-data.json'),
     JSON.stringify(
-      users.filter((user) => !!user && Object.keys(user).length === 126),
+      users.filter((user) => !!user),
       undefined,
       2
     )
