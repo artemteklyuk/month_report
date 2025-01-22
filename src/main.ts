@@ -191,9 +191,6 @@ ORDER BY r_q.id ASC`,
               vacancyId: {
                 $ne: new ObjectId('000000000000000000000000'),
               },
-              respondedAt: {
-                $ne: null,
-              },
             },
           },
           {
@@ -676,7 +673,7 @@ SELECT title, data FROM events WHERE uid = %L AND title = ANY(ARRAY[%L])`,
     const nps_2 = nps.rows.find(({ title }) => title === 'nps_2');
 
     let resume_load_on_register: boolean | null = null;
-    if (mainUserData.register_date >= new Date('2024-05-15')) {
+    if (mainUserData.register_date >= new Date('2025-01-21')) {
       const checkResumeLoadQuery = format(
         `SELECT 1 as "yes"
 FROM "user" AS u
